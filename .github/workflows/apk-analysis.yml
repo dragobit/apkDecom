@@ -34,6 +34,7 @@ jobs:
           echo "JADX Version: $JADX_VERSION"
       
       - name: Decompile APK with JADX
+        continue-on-error: true
         run: |
           mkdir -p output
           jadx/bin/jadx \
@@ -47,6 +48,7 @@ jobs:
           du -sh output/
       
       - name: Generate analysis summary
+        if: always()
         run: |
           {
             echo "# APK Analysis Summary"
@@ -68,6 +70,7 @@ jobs:
       
       - name: Upload decompiled source
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: decompiled-source-${{ github.run_number }}
           path: output/

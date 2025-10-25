@@ -42,6 +42,7 @@ jobs:
             --show-bad-code \
             --no-res \
             --threads-count $(nproc) \
+            --deobf \
             "${{ steps.download-apk.outputs.apk_file }}"
           
           echo "Decompilation complete"

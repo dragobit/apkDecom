@@ -1,0 +1,90 @@
+name: APK Analysis
+on:
+  workflow_dispatch:
+    inputs:
+      apk_url:
+        description: 'APK download URL'
+        required: true
+        type: string
+      jadx_version:
+        description: 'JADX version (default: latest)'
+        required: false
+        default: 'latest'
+        type: string
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download APK
+        id: download-apk
+        run: |
+          APK_FILENAME="app-$(date +%s).apk"
+          wget -O "$APK_FILENAME" "${{ github.event.inputs.apk_url }}"
+          echo "apk_file=$APK_FILENAME" >> $GITHUB_OUTPUT
+          echo "Downloaded: $APK_FILENAME"
+      
+      - name: Setup JADX
+        id: setup-jadx
+        run: |
+          if [ "${{ github.event.inputs.jadx_version }}" = "latest" ]; then
+            JADX_URL=$(curl -s https://api.github.com/repos/skylot/jadx/releases/latest | grep "browser_download_url.*jadx-.*zip" | cut -d '"' -f 4)
+          else
+            JADX_URL="https://github.com/skylot/jadx/releases/download/${{ github.event.inputs.jadx_version }}/jadx-${{ github.event.inputs.jadx_version }}.zip"
+          fi
+          
+          wget -O jadx.zip "$JADX_URL"
+          unzip -q jadx.zip -d jadx
+          chmod +x jadx/bin/jadx
+          
+          JADX_VERSION=$(jadx/bin/jadx --version | head -n 1)
+          echo "version=$JADX_VERSION" >> $GITHUB_OUTPUT
+          echo "JADX Version: $JADX_VERSION"
+      
+      - name: Decompile APK with JADX
+        run: |
+          mkdir -p output
+          jadx/bin/jadx \
+            --output-dir output \
+            --show-bad-code \
+            --no-res \
+            --threads-count $(nproc) \
+            "${{ steps.download-apk.outputs.apk_file }}"
+          
+          echo "Decompilation complete"
+          du -sh output/
+      
+      - name: Generate analysis summary
+        run: |
+          {
+            echo "# APK Analysis Summary"
+            echo ""
+            echo "**APK URL:** ${{ github.event.inputs.apk_url }}"
+            echo "**JADX Version:** ${{ steps.setup-jadx.outputs.version }}"
+            echo "**Analysis Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+            echo ""
+            echo "## Output Structure"
+            find output -maxdepth 2 -type d | head -20
+            echo ""
+            echo "## Statistics"
+            echo "- Java files: $(find output -name "*.java" | wc -l)"
+            echo "- Total files: $(find output -type f | wc -l)"
+            echo "- Output size: $(du -sh output | cut -f1)"
+          } > output/ANALYSIS_SUMMARY.md
+          
+          cat output/ANALYSIS_SUMMARY.md
+      
+      - name: Upload decompiled source
+        uses: actions/upload-artifact@v4
+        with:
+          name: decompiled-source-${{ github.run_number }}
+          path: output/
+          retention-days: 7
+          compression-level: 6
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f *.apk jadx.zip
+          echo "Cleanup complete"

@@ -6,11 +6,6 @@ on:
         description: 'APK download URL'
         required: true
         type: string
-      jadx_version:
-        description: 'JADX version (default: latest)'
-        required: false
-        default: 'latest'
-        type: string
 
 jobs:
   analyze:
@@ -28,12 +23,7 @@ jobs:
       - name: Setup JADX
         id: setup-jadx
         run: |
-          if [ "${{ github.event.inputs.jadx_version }}" = "latest" ]; then
-            JADX_URL=$(curl -s https://api.github.com/repos/skylot/jadx/releases/latest | grep "browser_download_url.*jadx-.*zip" | cut -d '"' -f 4)
-          else
-            JADX_URL="https://github.com/skylot/jadx/releases/download/${{ github.event.inputs.jadx_version }}/jadx-${{ github.event.inputs.jadx_version }}.zip"
-          fi
-          
+          JADX_URL="https://github.com/skylot/jadx/releases/download/v1.5.3/jadx-1.5.3.zip"   
           wget -O jadx.zip "$JADX_URL"
           unzip -q jadx.zip -d jadx
           chmod +x jadx/bin/jadx

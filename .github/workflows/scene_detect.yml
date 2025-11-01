@@ -13,14 +13,15 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          pip install yt-dlp scenedetect[opencv]
+          pip install "yt-dlp[default,curl-cffi]" 
+          pip install scenedetect[opencv]
           sudo apt-get update 
           sudo apt-get install -y ffmpeg
       
       - name: Download video
         run: |
           mkdir -p videos
-          yt-dlp -f best -o "videos/input.%(ext)s" "${{ github.event.inputs.video_url }}"
+          yt-dlp -f best -o "videos/input.%(ext)s" "${{ github.event.inputs.video_url }}" --extractor-args "generic:impersonate"
           ls -lh videos/
       
       - name: Select video file

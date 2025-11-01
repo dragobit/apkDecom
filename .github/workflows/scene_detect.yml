@@ -1,0 +1,44 @@
+name: Scene Detection
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: 'Video URL (YouTube/HLS/HTTP/…)'
+        required: true
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          pip install yt-dlp scenedetect[opencv]
+          sudo apt-get install -y ffmpeg
+      
+      - name: Download video
+        run: |
+          mkdir -p videos
+          yt-dlp -f best -o "videos/input.%(ext)s" "${{ github.event.inputs.video_url }}"
+          ls -lh videos/
+      
+      - name: Select video file
+        id: select_video
+        run: |
+          VIDEO=$(ls -1 videos/input.* | head -1)
+          echo "VIDEO=$VIDEO" >> $GITHUB_ENV
+      
+      - name: Scene detection
+        run: |
+          mkdir -p results
+          scenedetect -i "${{ env.VIDEO }}" \
+            detect-adaptive -t 3.0 \
+            save-html -o results/ -w 1200 -h 900
+          ls -lh results/
+      
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: results/
+          retention-days: 7

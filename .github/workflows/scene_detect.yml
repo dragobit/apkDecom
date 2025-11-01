@@ -35,7 +35,7 @@ jobs:
           mkdir -p results
           scenedetect -i "${{ env.VIDEO }}" \
             detect-adaptive -t 3.0 \
-            save-html -o results/ -w 1200 -h 900
+            save-html -f results/${{ github.run_number }}.html -w 1200 -h 900
           ls -lh results/
       
       - name: Upload results

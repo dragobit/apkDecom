@@ -21,7 +21,7 @@ jobs:
       - name: Download video
         run: |
           mkdir -p videos
-          yt-dlp -f best -o "videos/input.%(ext)s" "${{ github.event.inputs.video_url }}" --extractor-args "generic:impersonate"
+          yt-dlp -f best -o "videos/${{ github.run_number }}.%(ext)s" "${{ github.event.inputs.video_url }}" --extractor-args "generic:impersonate"
           ls -lh videos/
       
       - name: Select video file
@@ -35,7 +35,7 @@ jobs:
           mkdir -p results
           scenedetect -i "${{ env.VIDEO }}" \
             detect-adaptive -t 3.0 \
-            save-html -f results/${{ github.run_number }}.html -w 1200 -h 900
+            save-html -o results -w 1200 -h 900
           ls -lh results/
       
       - name: Upload results

@@ -64,7 +64,6 @@ jobs:
           echo "| **WebSSH URL** | [🔗 クリックして接続](${WEBSSH_URL}) |" >> $GITHUB_STEP_SUMMARY
     
           echo "| **ユーザー名** | runner |" >> $GITHUB_STEP_SUMMARY
-          # echo "| **パスワード** | ${{ RANDOM_PASS }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
    
           echo '🚨 注意: 接続が切断されるか、タイムアウトするとワークフローは終了します。' >> $GITHUB_STEP_SUMMARY

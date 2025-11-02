@@ -38,6 +38,41 @@ jobs:
             save-html -w 1200 -h 900
           ls -lh results/
       
+
+      - name: Download go-piping-sshd
+        shell: bash
+        run: |
+          # 🚨 v0.8.0のtar.gzファイルをダウンロード
+          DOWNLOAD_URL="https://github.com/nwtgck/go-piping-sshd/releases/download/v0.8.0/piping-sshd-0.8.0-linux-amd64.tar.gz"
+        
+          # ファイルをダウンロードして解凍
+          curl -fsSL "$DOWNLOAD_URL" -o piping-sshd.tar.gz
+          tar -zxvf piping-sshd.tar.gz
+          chmod +x piping-sshd
+        
+        
+      - name: Start SSH Server and Await Connection
+        shell: bash
+      # 接続情報をGitHub Actionsのサマリーに出力
+        run: |
+          RANDOM_PATH="57ed1b6b2b45ab38"
+          WEBSSH_URL="https://piping-ssh.nwtgck.org/#?cs_path=${{ RANDOM_PATH }}/cs&sc_path=${{ RANDOM_PATH }}/sc&user=runner"       
+          echo "## 🌐 SSH接続が可能です" >> $GITHUB_STEP_SUMMARY
+          echo "このランナーにWebブラウザから一時的にSSH接続できます。" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 項目 | 値 |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **WebSSH URL** | [🔗 クリックして接続](${WEBSSH_URL}) |" >> $GITHUB_STEP_SUMMARY
+    
+          echo "| **ユーザー名** | runner |" >> $GITHUB_STEP_SUMMARY
+          # echo "| **パスワード** | ${{ RANDOM_PASS }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+   
+          echo '🚨 注意: 接続が切断されるか、タイムアウトするとワークフローは終了します。' >> $GITHUB_STEP_SUMMARY
+          # SSHサーバーを起動し、接続を待ち受ける
+          # 接続が確立され、セッションが終了するとこのコマンドも終了する
+          ./piping-sshd ${{ RANDOM_PATH }} --allow-empty-password
+      
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:

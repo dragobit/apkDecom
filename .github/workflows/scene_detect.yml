@@ -33,7 +33,17 @@ jobs:
       - name: Scene detection
         run: |
           mkdir -p results
-          scenedetect -i "${{ env.VIDEO }}" -o results/ detect-adaptive -t 3.0 save-images save-html -w 1200 -h 900
+          cat > scenedetect.conf << 'EOF'
+          [global]
+          output = results
+          default-detector = detect-adaptive
+          [detect-adaptive]
+          threshold = 3
+          [export-html]
+          image-height = 1200
+          image-width = 900
+          EOF
+          scenedetect -i "${{ env.VIDEO }}" -v debug -c scenedetect.conf save-html 
           ls -lh results/
       
       - name: Upload results

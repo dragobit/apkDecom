@@ -33,9 +33,7 @@ jobs:
       - name: Scene detection
         run: |
           mkdir -p results
-          scenedetect -i "${{ env.VIDEO }}" -o results/ \
-            detect-adaptive -t 3.0 \
-            save-html -w 1200 -h 900
+          scenedetect -i "${{ env.VIDEO }}" -o results/   detect-adaptive -t 3.0  save-html -w 1200 -h 900
           ls -lh results/
       
       - name: Upload results

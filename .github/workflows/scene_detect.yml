@@ -53,7 +53,6 @@ jobs:
         
       - name: Start SSH Server and Await Connection
         shell: bash
-      # 接続情報をGitHub Actionsのサマリーに出力
         run: |
           RANDOM_PATH="57ed1b6b2b45ab38"
           WEBSSH_URL="https://piping-ssh.nwtgck.org/#?cs_path=${RANDOM_PATH}/cs&sc_path=${RANDOM_PATH}/sc&user=runner"       

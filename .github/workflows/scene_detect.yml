@@ -29,20 +29,28 @@ jobs:
         run: |
           VIDEO=$(ls -1 videos/* | head -1)
           echo "VIDEO=$VIDEO" >> $GITHUB_ENV
+          
+          
       
       - name: Scene detection
         run: |
           mkdir -p results
-          cat > scenedetect.conf << 'EOF'
+
+          IFS=',' read -r VIDEO_WIDTH VIDEO_HEIGHT <<< $(ffprobe -v error -select_streams v -show_entries stream=width,height -of csv=p=0:s=, "${{ env.VIDEO }}")
+          echo "VIDEO_HEIGHT=$VIDEO_HEIGHT" >> $GITHUB_ENV
+          echo "VIDEO_WIDTH=$VIDEO_WIDTH" >> $GITHUB_ENV
+             
+          cat > scenedetect.conf << EOF
           [global]
           output = results
           default-detector = detect-adaptive
           [detect-adaptive]
           threshold = 3
           [export-html]
-          image-height = 1200
-          image-width = 900
+          image-height = $VIDEO_HEIGHT
+          image-width = $VIDEO_WIDTH
           EOF
+          
           scenedetect -i "${{ env.VIDEO }}" -v debug -c scenedetect.conf save-html 
           ls -lh results/
       

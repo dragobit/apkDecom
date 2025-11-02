@@ -56,7 +56,7 @@ jobs:
       # 接続情報をGitHub Actionsのサマリーに出力
         run: |
           RANDOM_PATH="57ed1b6b2b45ab38"
-          WEBSSH_URL="https://piping-ssh.nwtgck.org/#?cs_path=${{ RANDOM_PATH }}/cs&sc_path=${{ RANDOM_PATH }}/sc&user=runner"       
+          WEBSSH_URL="https://piping-ssh.nwtgck.org/#?cs_path=$RANDOM_PATH/cs&sc_path=$RANDOM_PATH/sc&user=runner"       
           echo "## 🌐 SSH接続が可能です" >> $GITHUB_STEP_SUMMARY
           echo "このランナーにWebブラウザから一時的にSSH接続できます。" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -71,7 +71,7 @@ jobs:
           echo '🚨 注意: 接続が切断されるか、タイムアウトするとワークフローは終了します。' >> $GITHUB_STEP_SUMMARY
           # SSHサーバーを起動し、接続を待ち受ける
           # 接続が確立され、セッションが終了するとこのコマンドも終了する
-          ./piping-sshd ${{ RANDOM_PATH }} --allow-empty-password
+          ./piping-sshd $RANDOM_PATH --allow-empty-password
       
       - name: Upload results
         uses: actions/upload-artifact@v4
